@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.SecurePass" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">@color/securepass_teal</item>
+        <item name="android:navigationBarColor">@color/securepass_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/securepass_background</item>
+        <item name="android:windowBackground">@color/securepass_background</item>
+    </style>
+</resources>
+

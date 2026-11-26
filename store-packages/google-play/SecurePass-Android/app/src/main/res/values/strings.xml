@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vault_title">Parola kasan</string>
+    <string name="risk_only">Yalnızca riskli kayıtlar</string>
+    <string name="recovery_key_warning">Bu anahtar kasayı ana parola olmadan açar. Kağıda yazıp kasa dosyasından ayrı saklayın.</string>
+    <string name="recovery_key_confirmed">Güvenli ve ayrı bir yere kaydettim</string>
+    <string name="favorite">Favori</string>
+    <string name="autofill_app_fallback">Bu uygulama</string>
+    <string name="autofill_unlock_prompt">%1$s için SecPass kasasını açın.</string>
+    <string name="vault_unlock_failed">Kasa açılamadı. Bilgiyi kontrol edip tekrar deneyin.</string>
+</resources>
