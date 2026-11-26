@@ -138,18 +138,21 @@ enum CSVImporter {
                 let rawURL = value(row, "url")
                 let rawUser = value(row, "username")
                 let rawPass = value(row, "password")
-                let rawNotes = !value(row, "note").isEmpty ? value(row, "note") : value(row, "notes")
+                let rawNotes = try VaultValidation.text(
+                    !value(row, "note").isEmpty ? value(row, "note") : value(row, "notes"),
+                    maximum: 10_000
+                )
                 let resolvedName = !rawName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                     ? rawName
                     : (!rawURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? rawURL : "İçe aktarılan kayıt")
 
-                var item: VaultEntry
-                do {
+                let item: VaultEntry
+                if let validatedURL = try? VaultValidation.url(rawURL) {
                     item = try VaultEntry.fresh(
-                        name: resolvedName, url: rawURL, username: rawUser, password: rawPass,
+                        name: resolvedName, url: validatedURL, username: rawUser, password: rawPass,
                         category: "İçe aktarılan", notes: rawNotes
                     )
-                } catch {
+                } else {
                     var fallbackNotes = rawNotes
                     if !rawURL.isEmpty {
                         let suffix = "Orijinal adres (bağlantı olarak açılmaz): \(rawURL)"

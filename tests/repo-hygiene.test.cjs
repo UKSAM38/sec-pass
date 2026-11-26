@@ -41,8 +41,13 @@ test("git tracked files contain zero keystores, secrets, personal vaults, or lar
       /keystore\.properties$|\.jks$|\.keystore$|\.p12$|\.p8$|\.mobileprovision$|\.aab$|\.apk$|\.zip$|\.dmg$/,
       `Forbidden secret or binary tracked: ${file}`,
     );
+    assert.doesNotMatch(file, /^docs\/superpowers\//, `Internal plan tracked in Pages docs: ${file}`);
     if (file.endsWith(".spvault")) {
       assert.match(file, /INTEROP-TEST-VECTOR\.spvault$/, `Unexpected vault tracked: ${file}`);
+    }
+    const content = fs.readFileSync(path.join(root, file));
+    if (!content.includes(0)) {
+      assert.doesNotMatch(content.toString("utf8"), /\/Users\/samet/i, `Local user path leaked in ${file}`);
     }
   }
 });

@@ -40,4 +40,24 @@ class PasswordToolsTest {
         assertEquals(2, dup.duplicates)
         assertEquals(0, dup.added.size)
     }
+
+    @Test fun csvImporterDoesNotInflateOmittedUrlsOnInvalidRowsOrOversizedNotes() {
+        val oversized = "n".repeat(10_001)
+        val csv = "name,url,username,password,note\nEmptyPass,android://app,user,,ok\nTooLongNote,https://example.com,user,ValidPass123!,$oversized\n"
+        val preview = CsvImporter.prepare(csv, emptyList())
+        assertEquals(0, preview.added.size)
+        assertEquals(0, preview.omittedUrls)
+        assertEquals(2, preview.invalid)
+    }
+
+    @Test fun pickerGuardSkipsStopLockOnlyWithinActiveWindow() {
+        val guard = SystemPickerLockGuard()
+        assertTrue(guard.shouldLockOnStop(isChangingConfigurations = false, nowMs = 1_000L))
+        guard.beginPicker(nowMs = 1_000L)
+        assertFalse(guard.shouldLockOnStop(isChangingConfigurations = false, nowMs = 5_000L))
+        assertTrue(guard.shouldLockOnStop(isChangingConfigurations = false, nowMs = 130_000L))
+        guard.beginPicker(nowMs = 200_000L)
+        guard.endPicker()
+        assertTrue(guard.shouldLockOnStop(isChangingConfigurations = false, nowMs = 201_000L))
+    }
 }

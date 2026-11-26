@@ -105,8 +105,10 @@ enum VaultCrypto {
     private static func derive(password: String, salt: Data) async throws -> Data {
         guard password.count <= 1_024 else { throw VaultError.invalid("Ana parola çok uzun.") }
         return try await Task.detached(priority: .userInitiated) {
-            Data(try Scrypt(password: Array(password.utf8), salt: Array(salt), dkLen: 32,
-                            N: scryptN, r: scryptR, p: scryptP).calculate())
+            try autoreleasepool {
+                Data(try Scrypt(password: Array(password.utf8), salt: Array(salt), dkLen: 32,
+                                N: scryptN, r: scryptR, p: scryptP).calculate())
+            }
         }.value
     }
 

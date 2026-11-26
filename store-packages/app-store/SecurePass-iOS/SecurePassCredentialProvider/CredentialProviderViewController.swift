@@ -2,6 +2,7 @@ import AuthenticationServices
 import UIKit
 
 final class CredentialProviderViewController: ASCredentialProviderViewController, UITableViewDataSource, UITableViewDelegate {
+    private let topBar = UIView()
     private let table = UITableView(frame: .zero, style: .insetGrouped)
     private let unlockContainer = UIView()
     private let statusLabel = UILabel()
@@ -16,23 +17,46 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
         super.viewDidLoad()
         title = "SecPass"
         view.backgroundColor = .systemBackground
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "Vazgeç", style: .plain, target: self, action: #selector(cancelTapped)
-        )
-        setupTable()
+        setupTopBarAndTable()
         setupUnlockView()
     }
 
-    private func setupTable() {
+    private func setupTopBarAndTable() {
+        topBar.translatesAutoresizingMaskIntoConstraints = false
+        topBar.isHidden = true
+        view.addSubview(topBar)
+
+        let titleLabel = UILabel()
+        titleLabel.text = "SecPass AutoFill"
+        titleLabel.font = .preferredFont(forTextStyle: .headline)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let cancelBtn = UIButton(type: .system)
+        cancelBtn.setTitle("Vazgeç", for: .normal)
+        cancelBtn.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+        cancelBtn.translatesAutoresizingMaskIntoConstraints = false
+
+        topBar.addSubview(titleLabel)
+        topBar.addSubview(cancelBtn)
+
         table.translatesAutoresizingMaskIntoConstraints = false
         table.dataSource = self
         table.delegate = self
         table.isHidden = true
         view.addSubview(table)
+
         NSLayoutConstraint.activate([
+            topBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topBar.heightAnchor.constraint(equalToConstant: 48),
+            cancelBtn.leadingAnchor.constraint(equalTo: topBar.leadingAnchor, constant: 16),
+            cancelBtn.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
+            titleLabel.centerXAnchor.constraint(equalTo: topBar.centerXAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
             table.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             table.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            table.topAnchor.constraint(equalTo: view.topAnchor),
+            table.topAnchor.constraint(equalTo: topBar.bottomAnchor),
             table.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -78,11 +102,11 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
         NSLayoutConstraint.activate([
             unlockContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             unlockContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            unlockContainer.topAnchor.constraint(equalTo: view.topAnchor),
-            unlockContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            unlockContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            unlockContainer.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
             stack.leadingAnchor.constraint(equalTo: unlockContainer.leadingAnchor, constant: 24),
             stack.trailingAnchor.constraint(equalTo: unlockContainer.trailingAnchor, constant: -24),
-            stack.centerYAnchor.constraint(equalTo: unlockContainer.centerYAnchor, constant: -24)
+            stack.centerYAnchor.constraint(equalTo: unlockContainer.centerYAnchor)
         ])
     }
 
@@ -106,29 +130,47 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
     }
 
     override func prepareInterfaceForExtensionConfiguration() {
+        topBar.isHidden = true
         table.isHidden = true
         unlockContainer.isHidden = true
+
         let label = UILabel()
         label.text = "SecPass AutoFill etkin. Hızlı giriş için SecPass uygulamasından Face ID / Touch ID erişimini açabilir veya doğrudan ana parolanızı kullanabilirsiniz."
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(label)
+
+        var config = UIButton.Configuration.filled()
+        config.title = "Tamam"
+        config.baseBackgroundColor = UIColor(red: 0.18, green: 0.65, blue: 0.55, alpha: 1.0)
+        let doneButton = UIButton(configuration: config)
+        doneButton.addTarget(self, action: #selector(completeConfigTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [label, doneButton])
+        stack.axis = .vertical
+        stack.spacing = 20
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stack)
+
         NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+
+    @objc private func completeConfigTapped() {
         extensionContext.completeExtensionConfigurationRequest()
     }
 
     private func attemptUnlockAndLoad() {
         guard SharedVaultStore.exists() else {
-            showMasterPrompt(message: "Henüz aktif bir kasa bulunamadı. Önce SecPass uygulamasında kasa oluşturun.")
             passwordField.isHidden = true
             unlockButton.isHidden = true
+            showMasterPrompt(message: "Henüz aktif bir kasa bulunamadı. Önce SecPass uygulamasında kasa oluşturun.")
             return
         }
+        passwordField.isHidden = false
+        unlockButton.isHidden = false
         if BiometricKeyStore.exists() {
             do {
                 var key = try BiometricKeyStore.load(reason: "AutoFill için kasanızı açın")
@@ -145,11 +187,14 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
     }
 
     private func showMasterPrompt(message: String) {
+        topBar.isHidden = true
         table.isHidden = true
         unlockContainer.isHidden = false
         statusLabel.text = message
         passwordField.text = ""
-        passwordField.becomeFirstResponder()
+        if !passwordField.isHidden {
+            passwordField.becomeFirstResponder()
+        }
     }
 
     @objc private func unlockWithMasterTapped() {
@@ -195,13 +240,13 @@ final class CredentialProviderViewController: ASCredentialProviderViewController
             return
         }
 
-        // Eşleşen alan adı yoksa tüm kasayı göster ki kullanıcı manuel seçebilsin.
         entries = matched.isEmpty ? session.payload.entries.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending } : matched
         if entries.isEmpty {
             cancel(.credentialIdentityNotFound)
             return
         }
         unlockContainer.isHidden = true
+        topBar.isHidden = false
         table.isHidden = false
         table.reloadData()
     }

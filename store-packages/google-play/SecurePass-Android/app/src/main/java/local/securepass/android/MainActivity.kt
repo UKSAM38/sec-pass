@@ -26,29 +26,38 @@ import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.time.Instant
 
 class MainActivity : FragmentActivity() {
     private lateinit var repository: VaultRepository
     private lateinit var root: LinearLayout
     private val handler = Handler(Looper.getMainLooper())
+    private val pickerGuard = SystemPickerLockGuard()
     private var failedUnlockAttempts = 0
+    private var lockGeneration = 0
 
     private val importVault = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        pickerGuard.endPicker()
         uri ?: return@registerForActivityResult
         confirmImport(uri)
     }
     private val importCsv = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        pickerGuard.endPicker()
         uri ?: return@registerForActivityResult
         previewCsvImport(uri)
     }
     private val exportVault = registerForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+        pickerGuard.endPicker()
         uri ?: return@registerForActivityResult
         runAction { repository.export(uri); toast("Şifreli yedek kaydedildi.") }
     }
@@ -59,13 +68,24 @@ class MainActivity : FragmentActivity() {
         repository = VaultRepository(this)
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(20), dp(20), dp(20), dp(28))
+            setPadding(dp(20), dp(24), dp(20), dp(28))
             setBackgroundColor(Color.rgb(12, 18, 25))
         }
-        setContentView(ScrollView(this).apply {
+        val scroll = ScrollView(this).apply {
             setBackgroundColor(Color.rgb(12, 18, 25))
+            clipToPadding = false
             addView(root)
-        })
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(scroll) { view, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or
+                    WindowInsetsCompat.Type.displayCutout() or
+                    WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            insets
+        }
+        setContentView(scroll)
         if (savedInstanceState == null) {
             intent?.data?.let { uri ->
                 intent.data = null
@@ -75,9 +95,22 @@ class MainActivity : FragmentActivity() {
         if (repository.exists()) renderLocked() else renderWelcome()
     }
 
+    override fun onResume() {
+        super.onResume()
+        pickerGuard.endPicker()
+    }
+
     override fun onStop() {
         super.onStop()
-        if (!isChangingConfigurations) { VaultSessionHolder.lock(); renderLocked() }
+        if (pickerGuard.shouldLockOnStop(isChangingConfigurations)) {
+            lockVaultUi()
+        }
+    }
+
+    private fun lockVaultUi() {
+        lockGeneration++
+        VaultSessionHolder.lock()
+        renderLocked()
     }
 
     private fun renderWelcome() {
@@ -86,7 +119,7 @@ class MainActivity : FragmentActivity() {
         subtitle("Her hesabına ayrı parola. Hepsi sende.")
         note("Kasanız cihazda AES-256-GCM ile şifrelenir; sunucuya veri gönderilmez. Ana parola ve kurtarma anahtarı birlikte kaybolursa kasa geri açılamaz.")
         primaryButton("Yeni kasa oluştur") { createDialog() }
-        button("Mevcut .spvault dosyasını içe aktar") { importVault.launch(arrayOf("application/octet-stream", "application/json", "*/*")) }
+        button("Mevcut .spvault dosyasını içe aktar") { launchImportVault() }
     }
 
     private fun renderLocked() {
@@ -99,10 +132,17 @@ class MainActivity : FragmentActivity() {
         primaryButton("Kasayı aç") {
             val chars = secret.text.toString().toCharArray(); secret.text.clear()
             if (chars.isEmpty()) return@primaryButton
+            val token = lockGeneration
             lifecycleScope.launch {
                 if (failedUnlockAttempts > 0) delay((1 shl (failedUnlockAttempts - 1).coerceAtMost(3)) * 1_000L)
                 runCatching { withContext(Dispatchers.Default) { VaultCrypto.unlock(repository.read(), chars) } }
-                    .onSuccess { failedUnlockAttempts = 0; VaultSessionHolder.open(it); renderVault() }
+                    .onSuccess {
+                        if (token != lockGeneration || !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                            it.destroy()
+                            return@onSuccess
+                        }
+                        failedUnlockAttempts = 0; VaultSessionHolder.open(it); renderVault()
+                    }
                     .onFailure {
                         failedUnlockAttempts = (failedUnlockAttempts + 1).coerceAtMost(4)
                         showError(VaultException("Kasa açılamadı. Bilgiyi kontrol edip tekrar deneyin."))
@@ -111,7 +151,12 @@ class MainActivity : FragmentActivity() {
         }
         if (BiometricVaultKey(this).exists()) button("Biyometri ile aç") { biometricUnlock() }
         button("Kurtarma anahtarıyla aç") { recoveryDialog() }
-        button("Başka .spvault dosyası seç") { importVault.launch(arrayOf("application/octet-stream", "application/json", "*/*")) }
+        button("Başka .spvault dosyası seç") { launchImportVault() }
+    }
+
+    private fun launchImportVault() {
+        pickerGuard.beginPicker()
+        importVault.launch(arrayOf("application/octet-stream", "application/json", "*/*"))
     }
 
     private fun renderVault() {
@@ -124,7 +169,7 @@ class MainActivity : FragmentActivity() {
             setTypeface(typeface, Typeface.BOLD)
             setTextColor(Color.WHITE)
         }, weight(1f))
-        header.addView(smallButton("Kilitle") { VaultSessionHolder.lock(); renderLocked() })
+        header.addView(smallButton("Kilitle") { lockVaultUi() })
         root.addView(header)
 
         val counts = PasswordTools.counts(session.payload.entries)
@@ -224,13 +269,22 @@ class MainActivity : FragmentActivity() {
         AlertDialog.Builder(this).setTitle("SecPass Araçlar & Güvenlik")
             .setItems(items.toTypedArray()) { _, which ->
                 when (items[which]) {
-                    "Google CSV içe aktar" -> importCsv.launch(arrayOf("text/*", "text/csv", "text/comma-separated-values", "*/*"))
-                    "Şifreli yedek dışa aktar (.spvault)" -> exportVault.launch("SecPass-yedek.spvault")
-                    "Başka .spvault kasası içe aktar" -> importVault.launch(arrayOf("application/octet-stream", "application/json", "*/*"))
+                    "Google CSV içe aktar" -> {
+                        pickerGuard.beginPicker()
+                        importCsv.launch(arrayOf("text/*", "text/csv", "text/comma-separated-values", "*/*"))
+                    }
+                    "Şifreli yedek dışa aktar (.spvault)" -> {
+                        pickerGuard.beginPicker()
+                        exportVault.launch("SecPass-yedek.spvault")
+                    }
+                    "Başka .spvault kasası içe aktar" -> launchImportVault()
                     "Biyometrik hızlı açılışı kapat" -> runAction { bioHelper.delete(); toast("Biyometrik hızlı açılış kapatıldı.") }
                     "Biyometrik hızlı açılışı etkinleştir" -> enableBiometrics(session.key)
                     "Ana parolayı ve veri anahtarını yenile" -> rotateCredentialsDialog()
-                    "Android AutoFill'i etkinleştir" -> startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData("package:$packageName".toUri()))
+                    "Android AutoFill'i etkinleştir" -> runAction {
+                        pickerGuard.beginPicker()
+                        startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE).setData("package:$packageName".toUri()))
+                    }
                     "Önceki şifreli kasaya geri dön" -> confirmRestore()
                     else -> lockTimeoutDialog()
                 }
@@ -324,15 +378,35 @@ class MainActivity : FragmentActivity() {
                 if (String(first) != second) {
                     first.fill('\u0000'); showError(VaultException("Ana parolalar eşleşmiyor.")); return@setOnClickListener
                 }
-                val current = VaultSessionHolder.current() ?: return@setOnClickListener showError(VaultException("Kasa kilitli."))
+                val current = VaultSessionHolder.current()
+                if (current == null) {
+                    first.fill('\u0000')
+                    showError(VaultException("Kasa kilitli."))
+                    return@setOnClickListener
+                }
+                val token = lockGeneration
+                val snapshot = VaultSession(
+                    current.key.copyOf(),
+                    current.envelope,
+                    VaultPayload.fromJson(JSONObject(current.payload.toJson().toString())),
+                )
                 lifecycleScope.launch {
-                    runCatching { withContext(Dispatchers.Default) { VaultCrypto.rotateCredentials(current, first) } }
-                        .onSuccess { created ->
-                            repository.write(VaultCrypto.encode(created.session))
-                            BiometricVaultKey(this@MainActivity).delete()
-                            VaultSessionHolder.open(created.session)
-                            dialog.dismiss(); showRecovery(created.recoveryKey)
-                        }.onFailure(::showError)
+                    runCatching {
+                        try {
+                            withContext(Dispatchers.Default) { VaultCrypto.rotateCredentials(snapshot, first) }
+                        } finally {
+                            snapshot.destroy()
+                        }
+                    }.onSuccess { created ->
+                        if (token != lockGeneration || !lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                            created.session.destroy()
+                            return@onSuccess
+                        }
+                        repository.write(VaultCrypto.encode(created.session))
+                        BiometricVaultKey(this@MainActivity).delete()
+                        VaultSessionHolder.open(created.session)
+                        dialog.dismiss(); showRecovery(created.recoveryKey)
+                    }.onFailure(::showError)
                 }
             }
         }

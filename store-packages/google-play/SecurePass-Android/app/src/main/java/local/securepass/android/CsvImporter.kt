@@ -118,19 +118,18 @@ object CsvImporter {
                 val rawUrl = get(row, "url")
                 val rawUser = get(row, "username")
                 val rawPass = get(row, "password")
-                val rawNotes = get(row, "note").ifEmpty { get(row, "notes") }
+                val rawNotes = VaultValidation.text(get(row, "note").ifEmpty { get(row, "notes") }, 10_000)
                 val resolvedName = rawName.trim().ifEmpty { rawUrl.trim().ifEmpty { "İçe aktarılan kayıt" } }
 
-                val item = try {
-                    VaultEntry.fresh(resolvedName, rawUrl, rawUser, rawPass, "İçe aktarılan", rawNotes)
-                } catch (_: Exception) {
-                    var fallbackNotes = rawNotes
-                    if (rawUrl.isNotEmpty()) {
-                        val suffix = "Orijinal adres (bağlantı olarak açılmaz): $rawUrl"
-                        fallbackNotes = (if (fallbackNotes.isEmpty()) suffix else "$fallbackNotes\n$suffix").take(10_000)
-                        omittedUrls++
+                val validatedUrl = runCatching { VaultValidation.url(rawUrl) }.getOrNull()
+                val item = if (validatedUrl != null) {
+                    VaultEntry.fresh(resolvedName, validatedUrl, rawUser, rawPass, "İçe aktarılan", rawNotes)
+                } else {
+                    val suffix = "Orijinal adres (bağlantı olarak açılmaz): $rawUrl"
+                    val fallbackNotes = (if (rawNotes.isEmpty()) suffix else "$rawNotes\n$suffix").take(10_000)
+                    VaultEntry.fresh(resolvedName, "", rawUser, rawPass, "İçe aktarılan", fallbackNotes).also {
+                        if (rawUrl.isNotEmpty()) omittedUrls++
                     }
-                    VaultEntry.fresh(resolvedName, "", rawUser, rawPass, "İçe aktarılan", fallbackNotes)
                 }
 
                 val key = fingerprint(item)

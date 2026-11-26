@@ -21,6 +21,7 @@ final class VaultViewModel: ObservableObject {
     private var revealTask: Task<Void, Never>?
     private var noticeTask: Task<Void, Never>?
     private var failedUnlockAttempts = 0
+    private var lockGeneration = 0
 
     var filteredEntries: [VaultEntry] {
         let counts = PasswordTools.reuseCounts(entries)
@@ -71,9 +72,14 @@ final class VaultViewModel: ObservableObject {
     }
 
     func create(master: String, confirmation: String) async {
+        let token = lockGeneration
         await perform {
             guard master == confirmation else { throw VaultError.invalid("Ana parolalar eşleşmiyor.") }
-            let (created, recovery) = try await VaultCrypto.create(masterPassword: master)
+            var (created, recovery) = try await VaultCrypto.create(masterPassword: master)
+            guard self.lockGeneration == token else {
+                created.key.resetBytes(in: 0..<created.key.count)
+                throw VaultError.locked
+            }
             self.session = created
             try SharedVaultStore.write(VaultCrypto.encode(created))
             self.recoveryKey = recovery
@@ -82,18 +88,25 @@ final class VaultViewModel: ObservableObject {
     }
 
     func unlock(secret: String, recovery: Bool = false) async {
+        let token = lockGeneration
         if failedUnlockAttempts > 0 {
             let seconds = min(8, 1 << min(failedUnlockAttempts - 1, 3))
             try? await Task.sleep(for: .seconds(seconds))
         }
         await perform {
             do {
-                let opened = try await VaultCrypto.unlock(SharedVaultStore.read(), secret: secret, recovery: recovery)
+                var opened = try await VaultCrypto.unlock(SharedVaultStore.read(), secret: secret, recovery: recovery)
+                guard self.lockGeneration == token else {
+                    opened.key.resetBytes(in: 0..<opened.key.count)
+                    throw VaultError.locked
+                }
                 self.failedUnlockAttempts = 0
                 self.open(opened)
                 if recovery {
                     self.showNotice("Kurtarma anahtarıyla açıldı. Güvenlik ayarlarından yeni ana parola belirleyin.")
                 }
+            } catch let error as VaultError where error.localizedDescription == VaultError.locked.localizedDescription {
+                throw error
             } catch {
                 self.failedUnlockAttempts = min(self.failedUnlockAttempts + 1, 4)
                 throw VaultError.invalid("Kasa açılamadı. Bilgiyi kontrol edip tekrar deneyin.")
@@ -193,11 +206,16 @@ final class VaultViewModel: ObservableObject {
     }
 
     func rotateCredentials(master: String, confirmation: String) async {
+        let token = lockGeneration
         await perform {
             guard master == confirmation else { throw VaultError.invalid("Ana parolalar eşleşmiyor.") }
             guard let current = self.session else { throw VaultError.locked }
             var oldKey = current.key
-            let (rotated, recovery) = try await VaultCrypto.rotateCredentials(current, newMasterPassword: master)
+            var (rotated, recovery) = try await VaultCrypto.rotateCredentials(current, newMasterPassword: master)
+            guard self.lockGeneration == token, self.session != nil else {
+                rotated.key.resetBytes(in: 0..<rotated.key.count)
+                throw VaultError.locked
+            }
             try self.persist(rotated)
             oldKey.resetBytes(in: 0..<oldKey.count)
             try BiometricKeyStore.delete()
@@ -272,6 +290,7 @@ final class VaultViewModel: ObservableObject {
     }
 
     func lock() {
+        lockGeneration += 1
         autoLockTask?.cancel(); autoLockTask = nil
         revealTask?.cancel(); revealTask = nil
         if var key = session?.key { key.resetBytes(in: 0..<key.count) }

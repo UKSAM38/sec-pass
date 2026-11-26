@@ -94,6 +94,15 @@ final class VaultValidationTests: XCTestCase {
         XCTAssertTrue(vm.shouldShowShield(for: .background))
         XCTAssertTrue(vm.shouldLockVault(for: .background))
     }
+
+    func testCSVImporterDoesNotCountInvalidRowsAsOmittedURLsAndRejectsOversizedNotes() throws {
+        let oversizedNote = String(repeating: "n", count: 10_001)
+        let csv = "name,url,username,password,note\nEmptyPass,android://app,user,,ok\nTooLongNote,https://example.com,user,ValidPass123!,\(oversizedNote)\n"
+        let preview = try CSVImporter.prepare(raw: csv, existing: [])
+        XCTAssertEqual(preview.added.count, 0)
+        XCTAssertEqual(preview.omittedURLs, 0)
+        XCTAssertEqual(preview.invalid, 2)
+    }
 }
 
 private func XCTAssertThrowsErrorAsync(_ expression: () async throws -> Void) async {

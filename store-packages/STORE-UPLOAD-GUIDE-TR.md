@@ -77,3 +77,4 @@ GitHub'da `https://github.com/UKSAM38/sec-pass` deposunun **Settings → Pages**
      1. *Standart şifreleme algoritmaları mı kullanıyor?* → **Evet**
      2. *Yalnızca kimlik doğrulama / işletim sistemi koruması dışında dosya/veri şifrelemesi yapıyor mu?* → Parola yöneticisi kategorisi için ekrandaki yönlendirmeye göre yıllık Fransız/ABD standart açık kaynak / kitle pazarı (Mass Market) beyanını işaretleyin.
    - `STORE-METADATA-TR.md` içindeki açıklama, anahtar kelimeler ve **App Review İnceleme Notu**'nu yapıştırın; `iphone-6.7` ve `ipad-13` ekran görüntülerini yükleyip incelemeye gönderin.
+   - *Fiziksel Cihaz Test Notu:* TestFlight'a yükledikten sonra gerçek iPhone/iPad üzerinde hem Face ID / Touch ID ile hem de doğrudan Ana Parola ile AutoFill kilit açma akışını (`scrypt` bellek sınırı kontrolü dahil) bir kez test edin.

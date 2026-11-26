@@ -1,12 +1,12 @@
-# SecurePass macOS güvenlik denetimi
+# SecPass macOS güvenlik denetimi
 
 Tarih: 21 Eylül 2026
 
-Hedef: `/Applications/SecurePass.app` ve dağıtım DMG'si. Denetimde yapay kasalar kullanıldı; kullanıcının gerçek kasa içeriği veya parolaları okunmadı.
+Hedef: `/Applications/SecPass.app` ve dağıtım DMG'si. Denetimde yapay kasalar kullanıldı; kullanıcının gerçek kasa içeriği veya parolaları okunmadı.
 
 ## Sonuç
 
-Denetlenen yerel sürümde kritik veya yüksek önem dereceli uygulama hatası bulunmadı. Electron 44.4.3'e yükseltilen ve ek sertleştirmelerle yeniden paketlenen sürüm `/Applications/SecurePass.app` konumuna kuruldu ve açıldı.
+Denetlenen yerel sürümde kritik veya yüksek önem dereceli uygulama hatası bulunmadı. Electron 44.4.3'e yükseltilen ve ek sertleştirmelerle yeniden paketlenen sürüm `/Applications/SecPass.app` konumuna kuruldu ve açıldı.
 
 ## Geçen kontroller
 
@@ -24,7 +24,7 @@ Denetlenen yerel sürümde kritik veya yüksek önem dereceli uygulama hatası b
 - Harici kasa dosyası değişikliğinde üzerine yazma reddedildi.
 - Değiştirilmiş ciphertext, tag, nonce ve anahtar slotları reddedildi.
 - Ana parola değiştirme, eski parolanın geçersizliği ve kurtarma anahtarı akışları geçti.
-- Pano yalnızca SecurePass'in yazdığı değer hâlâ bulunuyorsa 30 saniye sonra temizlendi.
+- Pano yalnızca SecPass'in yazdığı değer hâlâ bulunuyorsa 30 saniye sonra temizlendi.
 - Uyku, ekran kilidi, işletim sistemi boşta kalması, pencere küçültme ve işlem sırasında kilitleme akışları geçti.
 - Kullanıcı veri klasörü yalnızca kullanıcıya açık `700`; incelenen veri dosyaları genel olarak `600` izinliydi.
 - 14/14 çekirdek test, Electron güvenlik paketi ve gerçek pencere kullanım testi geçti.

@@ -8,6 +8,7 @@ store-packages/**/build/
 **/DerivedData/
 **/xcuserdata/
 .superpowers/
+docs/superpowers/
 .bolt/
 .DS_Store
 

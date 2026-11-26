@@ -101,3 +101,27 @@ object VaultSessionHolder {
     }
     fun touch() { lastActivity = android.os.SystemClock.elapsedRealtime() }
 }
+
+class SystemPickerLockGuard(private val maxPickerDurationMs: Long = 120_000L) {
+    private var awaitingPicker = false
+    private var startedAtMs = 0L
+
+    fun beginPicker(nowMs: Long = android.os.SystemClock.elapsedRealtime()) {
+        awaitingPicker = true
+        startedAtMs = nowMs
+    }
+
+    fun endPicker() {
+        awaitingPicker = false
+        startedAtMs = 0L
+    }
+
+    fun shouldLockOnStop(isChangingConfigurations: Boolean, nowMs: Long = android.os.SystemClock.elapsedRealtime()): Boolean {
+        if (isChangingConfigurations) return false
+        if (awaitingPicker && nowMs - startedAtMs in 0..maxPickerDurationMs) {
+            return false
+        }
+        endPicker()
+        return true
+    }
+}

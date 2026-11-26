@@ -335,6 +335,7 @@ private struct EntryDetail: View {
             Button("Kaydı sil", role: .destructive) { Task { await model.delete(entry) } }
             Button("Vazgeç", role: .cancel) { }
         } message: { Text("Bu işlemden önce kasanın şifreli önceki sürümü cihazda tutulur.") }
+        .onChange(of: entry.id) { _, _ in model.setPasswordRevealed(false) }
         .onDisappear { model.setPasswordRevealed(false) }
     }
 
