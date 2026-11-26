@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecPass — Gizlilik Politikası / Privacy Policy</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-badge">SP</span>
+        <span>SecPass</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">Ana Sayfa / Home</a>
+        <a class="active" href="./privacy.html">Gizlilik Politikası / Privacy</a>
+        <a href="./support.html">Destek / Support</a>
+        <a href="https://github.com/UKSAM38/sec-pass" rel="noopener">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="section-box">
+      <span class="eyebrow">TÜRKÇE</span>
+      <h1>SecPass Gizlilik Politikası</h1>
+      <p><strong>Son güncelleme:</strong> 26 Kasım 2026</p>
+
+      <h2>1. Genel İlke: Sıfır Veri Toplama</h2>
+      <p>
+        <strong>SecPass</strong>, kullanıcıların hesap bilgilerini yalnızca kendi cihazlarında şifreli bir kasa (<code>.spvault</code>) içinde saklamasını sağlayan çevrimdışı bir parola yöneticisidir.
+        Uygulama <strong>hiçbir kişisel veriyi, parolayı, kullanıcı adını, site adresini, notu, cihaz kimliğini veya kullanım istatistiğini toplamaz, işlemez, geliştirici sunucularına iletmez ve üçüncü taraflarla paylaşmaz</strong>.
+      </p>
+      <ul>
+        <li>Kullanıcı hesabı veya bulut kaydı oluşturulmaz.</li>
+        <li>Reklam, analitik, telemetri, izleme (tracking) veya üçüncü taraf çökme raporlama SDK'sı kullanılmaz.</li>
+        <li>Android sürümü <code>android.permission.INTERNET</code> izni dahi talep etmez; masaüstü ve iOS sürümleri dış ağ bağlantısı kurmaz.</li>
+      </ul>
+
+      <h2>2. Cihaz İçi Şifreleme ve Biyometrik Doğrulama</h2>
+      <p>
+        Kasa verileri cihaz üzerinde <code>scrypt</code> anahtar türetme ve <code>AES-256-GCM</code> kimlik doğrulamalı şifreleme ile korunur.
+        Kullanıcı isteğe bağlı olarak hızlı kilit açma özelliğini etkinleştirdiğinde, şifreleme anahtarı işletim sisteminin donanım destekli güvenli deposunda (iOS Keychain / Face ID / Touch ID veya Android Keystore / BiometricPrompt) yalnızca o cihaza özel olarak saklanır. Biyometrik verileriniz işletim sistemi tarafından işlenir; SecPass biyometrik şablonlara asla erişmez.
+      </p>
+
+      <h2>3. Otomatik Doldurma (AutoFill)</h2>
+      <p>
+        iOS Credential Provider ve Android AutofillService özellikleri yalnızca siz işletim sistemi ayarlarından SecPass'i açıkça seçtiğinizde çalışır.
+        Eşleştirme işlemi (alan adı veya paket kontrolü) tamamen cihaz üzerinde gerçekleşir ve yalnızca sizin onayladığınız kayıt ilgili giriş alanına aktarılır.
+      </p>
+
+      <h2>4. Dosya İçe / Dışa Aktarma ve Yedekler</h2>
+      <p>
+        Kullanıcı açıkça <code>.spvault</code> yedeği dışa aktardığında veya içe aktardığında (ya da Google CSV dosyası seçtiğinde), yalnızca kullanıcının sistem dosya seçicisinde belirlediği dosya okunur veya yazılır.
+        Dosyayı iCloud Drive, Google Drive veya başka bir bulut klasörüne kaydetmeyi seçerseniz şifreli kasa dosyası ilgili bulut sağlayıcısının kendi gizlilik politikası kapsamında saklanır; SecPass bu servislere kendiliğinden bağlanmaz.
+      </p>
+
+      <h2>5. Veri Silme</h2>
+      <p>
+        Geliştirici tarafında tutulan hiçbir sunucu verisi bulunmadığından uzaktan silinecek bir hesap kaydı yoktur. Uygulama içinden istediğiniz kaydı tek tek silebilirsiniz. Uygulamayı cihazınızdan kaldırdığınızda uygulamaya özel yerel kasa ve biyometrik anahtar işletim sistemi tarafından silinir. Dışa aktardığınız <code>.spvault</code> yedek dosyalarının yönetimi ve silinmesi tamamen sizin kontrolünüzdedir.
+      </p>
+
+      <h2>6. Veri Sorumlusu ve İletişim</h2>
+      <ul>
+        <li><strong>Geliştirici / Veri Sorumlusu:</strong> Samet Uçar</li>
+        <li><strong>Destek ve Gizlilik E-postası:</strong> <a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a></li>
+        <li><strong>Resmî Gizlilik Politikası Adresi:</strong> <a href="https://uksam38.github.io/sec-pass/privacy.html">https://uksam38.github.io/sec-pass/privacy.html</a></li>
+      </ul>
+    </section>
+
+    <section class="section-box" lang="en">
+      <span class="eyebrow">ENGLISH</span>
+      <h2>SecPass Privacy Policy</h2>
+      <p><strong>Last updated:</strong> November 26, 2026</p>
+
+      <h3>1. Zero Data Collection &amp; Offline Architecture</h3>
+      <p>
+        <strong>SecPass</strong> is an offline-first local password manager. We <strong>do not collect, transmit, store, sell, or share any personal information, passwords, usernames, URLs, notes, device identifiers, or usage diagnostics</strong>.
+      </p>
+      <ul>
+        <li>No user accounts or developer servers exist.</li>
+        <li>No advertising, analytics, tracking, or third-party crash-reporting SDKs are embedded.</li>
+        <li>The Android app requests zero <code>INTERNET</code> permissions; the iOS and macOS apps make zero network connections.</li>
+      </ul>
+
+      <h3>2. On-Device Encryption &amp; Biometrics</h3>
+      <p>
+        Vault files (<code>.spvault</code>) are encrypted locally on your device using <code>scrypt</code> and <code>AES-256-GCM</code>. When optional biometric unlock (Face ID, Touch ID, or Android BiometricPrompt) is enabled, the vault key is protected inside the operating system's hardware-backed iOS Keychain or Android Keystore (device-only, non-exportable). SecPass never accesses raw biometric data.
+      </p>
+
+      <h3>3. AutoFill Services</h3>
+      <p>
+        iOS AutoFill Credential Provider and Android AutofillService run strictly on-device after you explicitly enable them in system settings. Domain/form matching happens locally in memory and never leaves your device.
+      </p>
+
+      <h3>4. File Import / Export &amp; Deletion</h3>
+      <p>
+        Importing or exporting a <code>.spvault</code> backup or CSV file uses the operating system's user-initiated document picker. If you choose to save an encrypted backup to a third-party cloud folder (such as iCloud Drive or Google Drive), that provider's privacy policy governs file storage. Uninstalling SecPass deletes the app's sandboxed vault and keychain/keystore entries automatically.
+      </p>
+
+      <h3>5. Developer Contact</h3>
+      <ul>
+        <li><strong>Developer:</strong> Samet Uçar</li>
+        <li><strong>Contact Email:</strong> <a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a></li>
+        <li><strong>Canonical URL:</strong> <a href="https://uksam38.github.io/sec-pass/privacy.html">https://uksam38.github.io/sec-pass/privacy.html</a></li>
+      </ul>
+    </section>
+
+    <footer class="site-footer">
+      <span><strong>Samet Uçar</strong> — <a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a></span>
+      <span><a href="./support.html">Destek / Support</a></span>
+    </footer>
+  </div>
+</body>
+</html>

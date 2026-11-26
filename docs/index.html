@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecPass — Yerel Şifreli Parola Kasası | Offline Password Vault</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-badge">SP</span>
+        <span>SecPass</span>
+      </a>
+      <nav class="site-nav">
+        <a class="active" href="./index.html">Ana Sayfa / Home</a>
+        <a href="./privacy.html">Gizlilik Politikası / Privacy</a>
+        <a href="./support.html">Destek / Support</a>
+        <a href="https://github.com/UKSAM38/sec-pass" rel="noopener">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <span class="eyebrow">AES-256-GCM • SCRYPT • %100 YEREL</span>
+      <h1>Her hesabına ayrı parola. Hepsi kendi cihazında.</h1>
+      <p>
+        <strong>SecPass</strong>; iOS, Android ve macOS üzerinde çalışan, sunucu hesabı gerektirmeyen açık kaynaklı yerel parola yöneticisidir.
+        Parolaların, kullanıcı adların ve notların cihazından dışarı çıkmaz; reklam, analitik veya takip SDK'sı içermez.
+      </p>
+      <p>
+        <strong>SecPass</strong> is an open-source, offline-first password manager for iOS, Android, and macOS.
+        Your encrypted vault stays strictly on your device — zero accounts, zero servers, zero analytics or tracking SDKs.
+      </p>
+    </section>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Uçtan Uca Yerel Şifreleme</h3>
+        <p>Her kasa <code>scrypt</code> (N=131072, r=8, p=1) ve <code>AES-256-GCM</code> ile şifrelenir. Ana parola değişiminde 32 baytlık veri anahtarı ve 64 karakterlik kurtarma anahtarı yenilenir.</p>
+      </div>
+      <div class="card">
+        <h3>iOS &amp; Android AutoFill</h3>
+        <p>Face ID, Touch ID veya biyometrik doğrulama ve ana parola yedeğiyle Safari, Chrome ve mobil uygulamalarda güvenli otomatik doldurma sağlar.</p>
+      </div>
+      <div class="card">
+        <h3>Kolay Aktarım ve Yedekleme</h3>
+        <p>Google Password Manager CSV dosyalarını doğrudan içe aktarın; şifreli <code>.spvault</code> dosyasıyla masaüstü, iPhone, iPad ve Android arasında güvenle taşıyın.</p>
+      </div>
+    </div>
+
+    <section class="section-box">
+      <h2>Hızlı Bağlantılar / Quick Links</h2>
+      <ul>
+        <li><a href="./privacy.html">Gizlilik Politikası / Privacy Policy</a> — Mağaza ve kullanıcı veri koruma beyanı</li>
+        <li><a href="./support.html">Destek ve Kurulum Rehberi / Support &amp; Setup Guide</a> — AutoFill kurulumu, yedekleme ve sık sorulan sorular</li>
+        <li><a href="https://github.com/UKSAM38/sec-pass">Açık Kaynak Kod Deposu / Source Repository</a> — <code>UKSAM38/sec-pass</code></li>
+      </ul>
+    </section>
+
+    <footer class="site-footer">
+      <span>Geliştirici / Developer: <strong>Samet Uçar</strong> (<a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a>)</span>
+      <span>SecPass v1.0.0</span>
+    </footer>
+  </div>
+</body>
+</html>

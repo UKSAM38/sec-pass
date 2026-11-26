@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecPass — Destek ve Kurulum Rehberi / Support</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-badge">SP</span>
+        <span>SecPass</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">Ana Sayfa / Home</a>
+        <a href="./privacy.html">Gizlilik Politikası / Privacy</a>
+        <a class="active" href="./support.html">Destek / Support</a>
+        <a href="https://github.com/UKSAM38/sec-pass" rel="noopener">GitHub</a>
+      </nav>
+    </header>
+
+    <section class="section-box">
+      <span class="eyebrow">DESTEK &amp; YARDIM</span>
+      <h1>SecPass Destek ve Kurulum Rehberi</h1>
+      <p>
+        Sorularınız, hata bildirimleriniz veya geri bildirimleriniz için doğrudan geliştiriciyle iletişime geçebilirsiniz:
+        <br />
+        <strong>Geliştirici:</strong> Samet Uçar — <a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a>
+        <br />
+        <strong>GitHub Issues:</strong> <a href="https://github.com/UKSAM38/sec-pass/issues">https://github.com/UKSAM38/sec-pass/issues</a>
+      </p>
+
+      <div class="notice">
+        <strong>Önemli Kurtarma Uyarısı:</strong> SecPass sunucusuz çalışır. Ana parolanızı ve 64 karakterlik kurtarma anahtarınızı aynı anda kaybederseniz şifreli kasanızı teknik olarak bizim de açmamız mümkün değildir. Kurtarma anahtarınızı kasa dosyasından ayrı, güvenli bir yerde saklayın.
+      </div>
+
+      <h2>iPhone ve iPad'de AutoFill Nasıl Etkinleştirilir?</h2>
+      <ol>
+        <li>iOS <strong>Ayarlar → Genel → Otomatik Doldurma ve Parolalar</strong> (veya <strong>Ayarlar → Parolalar → Parola Seçenekleri</strong>) bölümünü açın.</li>
+        <li><strong>Parolaları ve Geçiş Anahtarlarını Otomatik Doldur</strong> seçeneğini açıp listeden <strong>SecPass AutoFill</strong>'i işaretleyin.</li>
+        <li>İsteğe bağlı hızlı açılış için SecPass uygulamasında kasanızı açıp sağ üst menüden <strong>Face ID / Touch ID'yi aç</strong> seçeneğini etkinleştirin. Face ID kapalı olsa bile AutoFill penceresinde doğrudan ana parolanızı girerek kasanızı açabilirsiniz.</li>
+      </ol>
+
+      <h2>Android'de Otomatik Doldurma (Autofill) Nasıl Etkinleştirilir?</h2>
+      <ol>
+        <li>SecPass uygulamasında kasanızı açıp <strong>Android AutoFill'i etkinleştir</strong> düğmesine dokunun (veya <strong>Ayarlar → Şifreler ve hesaplar → Otomatik doldurma hizmeti</strong> menüsünden <strong>SecPass AutoFill</strong>'i seçin).</li>
+        <li>İsterseniz uygulama içinden <strong>Biyometrik hızlı açılışı etkinleştir</strong> ile parmak izi / yüz doğrulamasını açabilirsiniz.</li>
+      </ol>
+
+      <h2>Google Şifrelerini İçe Aktarma ve Cihazlar Arası Taşıma</h2>
+      <ul>
+        <li><strong>Google CSV Aktarımı:</strong> Chrome / Google Şifre Yöneticisi ayarlarından dışa aktardığınız <code>.csv</code> dosyasını masaüstü, iOS veya Android SecPass uygulamasındaki <strong>Google CSV içe aktar</strong> menüsünden seçin. İşlem bittikten sonra şifresiz CSV dosyasını cihazınızdan ve çöp kutusundan silin.</li>
+        <li><strong>Şifreli Yedek (<code>.spvault</code>):</strong> <strong>Şifreli yedek dışa aktar</strong> ile aldığınız <code>.spvault</code> dosyası masaüstü, iOS ve Android sürümleri arasında tam uyumludur.</li>
+      </ul>
+    </section>
+
+    <section class="section-box" lang="en">
+      <span class="eyebrow">ENGLISH SUPPORT</span>
+      <h2>SecPass Support &amp; Quick Start</h2>
+      <p>
+        For technical support, bug reports, or questions, contact:
+        <br />
+        <strong>Developer:</strong> Samet Uçar — <a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a>
+      </p>
+      <ul>
+        <li><strong>Enable iOS AutoFill:</strong> Go to <em>Settings → General → AutoFill &amp; Passwords</em> and enable <strong>SecPass AutoFill</strong>. You can unlock AutoFill using Face ID / Touch ID (once enabled inside the app) or directly with your Master Password.</li>
+        <li><strong>Enable Android Autofill:</strong> Tap <em>Enable Android AutoFill</em> inside SecPass or select <strong>SecPass AutoFill</strong> in system Autofill settings.</li>
+        <li><strong>Lost Master Password:</strong> Unlock your vault using your 64-character hexadecimal Recovery Key, then rotate your Master Password in Security Settings. If both your Master Password and Recovery Key are lost, encrypted vaults cannot be recovered.</li>
+      </ul>
+    </section>
+
+    <footer class="site-footer">
+      <span><strong>Samet Uçar</strong> — <a href="mailto:sametucar2738@gmail.com">sametucar2738@gmail.com</a></span>
+      <span><a href="./privacy.html">Gizlilik Politikası / Privacy Policy</a></span>
+    </footer>
+  </div>
+</body>
+</html>
