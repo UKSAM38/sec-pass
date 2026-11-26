@@ -1,0 +1,32 @@
+# Dependencies & build outputs
+node_modules/
+dist/
+release/
+store-packages/**/build/
+**/.gradle/
+**/.kotlin/
+**/DerivedData/
+**/xcuserdata/
+.superpowers/
+.bolt/
+.DS_Store
+
+# Signing keys & secrets (NEVER commit)
+release-secrets/
+**/keystore.properties
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.p8
+**/*.mobileprovision
+.env
+.env.*
+
+# Personal vaults, plaintext exports & large store archives
+*.spvault
+!**/INTEROP-TEST-VECTOR.spvault
+*.spvault.backup
+*.csv
+store-packages/*.zip
+store-packages/google-play/artifacts/*.aab
+store-packages/google-play/artifacts/*.apk
